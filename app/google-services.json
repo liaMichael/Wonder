@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "288593664782",
+    "firebase_url": "https://wonder-35a32.firebaseio.com",
+    "project_id": "wonder-35a32",
+    "storage_bucket": "wonder-35a32.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288593664782:android:95785ac55e25c8cb2f955f",
+        "android_client_info": {
+          "package_name": "com.example.wonder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "288593664782-q9kjk532u1ap85umd3lihba39gu26lki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCD9Gc1udMcNbVeBC2IrPXfiAH4H-3w44"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "288593664782-q9kjk532u1ap85umd3lihba39gu26lki.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
