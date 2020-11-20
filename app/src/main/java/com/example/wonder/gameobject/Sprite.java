@@ -14,12 +14,14 @@ import com.example.wonder.gamepanel.StatusBar;
  */
 public abstract class Sprite extends GameObject {
 
+    protected Room room;
     protected StatusBar healthBar;
     protected int maxHealthPoints;
     protected int healthPoints;
 
-    public Sprite(Context context, Bitmap bitmap, double positionX, double positionY, int maxHealthPoints, int healthColor) {
+    public Sprite(Context context, Bitmap bitmap, Room room, double positionX, double positionY, int maxHealthPoints, int healthColor) {
         super(bitmap, positionX, positionY);
+        this.room = room;
         this.width = bitmap.getWidth();
         this.height = bitmap.getHeight();
         this.maxHealthPoints = maxHealthPoints;
@@ -29,6 +31,21 @@ public abstract class Sprite extends GameObject {
 
     public void draw(Canvas canvas, GameDisplay gameDisplay) {
         super.draw(canvas, gameDisplay);
+    }
+
+    public void keepInBounds() {
+        if (this.positionY < room.positionY) {
+            this.positionY = room.positionY;
+        }
+        if (this.positionX < room.positionX) {
+            this.positionX = room.positionX;
+        }
+        if (this.positionY + this.height > room.positionY + room.height) {
+            this.positionY = room.positionY + room.height - this.height;
+        }
+        if (this.positionX + this.width > room.positionX + room.width) {
+            this.positionX = room.positionX + room.width - this.width;
+        }
     }
 
     public int getHealthPoints() {

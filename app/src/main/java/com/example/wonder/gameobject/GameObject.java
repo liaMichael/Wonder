@@ -39,36 +39,52 @@ public abstract class GameObject {
      * @return
      */
     public static boolean isColliding(GameObject obj1, GameObject obj2) {
-        int left = (int) Math.max(obj1.getPositionX(), obj2.getPositionX());
-        int right = (int) Math.min(obj1.getPositionX() + obj1.getWidth(), obj2.getPositionX() + obj2.getWidth());
-        int top = (int) Math.max(obj1.getPositionY(), obj2.getPositionY());
-        int bottom = (int) Math.min(obj1.getPositionY() + obj1.getHeight(), obj2.getPositionY() + obj2.getHeight());
+        int left = (int) Math.max(obj1.positionX, obj2.positionX);
+        int right = (int) Math.min(obj1.positionX + obj1.width, obj2.positionX + obj2.width);
+        int top = (int) Math.max(obj1.positionY, obj2.positionY);
+        int bottom = (int) Math.min(obj1.positionY + obj1.height, obj2.positionY + obj2.height);
         for (int col = left; col < right; col++) {
             for (int row = top; row < bottom; row++) {
 
-                if ((int) (col - obj1.getPositionX()) >= obj1.bitmap.getWidth()) {
-                    Log.d("GameObject.java", "obj1: x >=  bitmap.width(): " + (int) (col - obj1.getPositionX()) + " >= " + obj1.bitmap.getWidth() + ". Position: " +  obj1.getPositionX() + ", " + obj1.getPositionY());
+                if ((int) (col - obj1.positionX) >= obj1.width) {
+                    Log.d("GameObject.java", "obj1: x >=  bitmap.width(): " + (int) (col - obj1.positionX) + " >= " + obj1.width + ". Position: " +  obj1.positionX + ", " + obj1.positionY);
                 }
 
-                if ((int) (row - obj1.getPositionY()) >= obj1.bitmap.getHeight()) {
-                    Log.d("GameObject.java", "obj1: y >=  bitmap.height(): " + (int) (row - obj1.getPositionY()) + " >= " + obj1.bitmap.getHeight() + ". Position: " +  obj1.getPositionX() + ", " + obj1.getPositionY());
+                if ((int) (row - obj1.positionY) >= obj1.height) {
+                    Log.d("GameObject.java", "obj1: y >=  bitmap.height(): " + (int) (row - obj1.positionY) + " >= " + obj1.height + ". Position: " +  obj1.positionX + ", " + obj1.positionY);
                 }
 
-                if ((int) (col - obj2.getPositionX()) >= obj2.bitmap.getWidth()) {
-                    Log.d("GameObject.java", "obj2: x >=  bitmap.width(): " + (int) (col - obj2.getPositionX()) + " >= " + obj2.bitmap.getWidth() + ". Position: " +  obj2.getPositionX() + ", " + obj2.getPositionY());
+                if ((int) (col - obj2.positionX) >= obj2.width) {
+                    Log.d("GameObject.java", "obj2: x >=  bitmap.width(): " + (int) (col - obj2.positionX) + " >= " + obj2.width + ". Position: " +  obj2.positionX + ", " + obj2.positionY);
                 }
 
-                if ((int) (row - obj2.getPositionY()) >= obj2.bitmap.getHeight()) {
-                    Log.d("GameObject.java", "obj2: y >=  bitmap.height(): " + (int) (row - obj2.getPositionY()) + " >= " + obj2.bitmap.getHeight() + ". Position: " +  obj2.getPositionX() + ", " + obj2.getPositionY());
+                if ((int) (row - obj2.positionY) >= obj2.height) {
+                    Log.d("GameObject.java", "obj2: y >=  bitmap.height(): " + (int) (row - obj2.positionY) + " >= " + obj2.height + ". Position: " +  obj2.positionX + ", " + obj2.positionY);
                 }
 
-                if (obj1.bitmap.getPixel((int) (col - obj1.getPositionX()), (int) (row - obj1.getPositionY())) != Color.TRANSPARENT &&
-                        obj2.bitmap.getPixel((int) (col - obj2.getPositionX()), (int) (row - obj2.getPositionY())) != Color.TRANSPARENT) {
+                if (obj1.bitmap.getPixel((int) (col - obj1.positionX), (int) (row - obj1.positionY)) != Color.TRANSPARENT &&
+                        obj2.bitmap.getPixel((int) (col - obj2.positionX), (int) (row - obj2.positionY)) != Color.TRANSPARENT) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public static boolean isContaining(GameObject big, GameObject small) {
+        if (!(big.positionX <= small.positionX && big.positionY<= small.positionY && big.width >= small.width && big.height >= small.height)) {
+            return false;
+        }
+
+        for (int col = (int) small.positionX; col < (int) (small.positionX + small.width); col++) {
+            for (int row = (int) small.positionY; row < (int) (small.positionY + small.height); row++) {
+                if (small.bitmap.getPixel((int) (col - small.positionX), (int) (row - small.positionY)) != Color.TRANSPARENT &&
+                big.bitmap.getPixel(col, row) == Color.TRANSPARENT) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void draw(Canvas canvas, GameDisplay gameDisplay) {
@@ -90,6 +106,13 @@ public abstract class GameObject {
         return positionY;
     }
 
+    public void setPositionX(double positionX) {
+        this.positionX = positionX;
+    }
+    public void setPositionY(double positionY) {
+        this.positionY = positionY;
+    }
+
     protected static double getDistanceBetweenObjects(GameObject obj1, GameObject obj2) {
         return Utils.getDistanceBetweenPoints(obj1.getPositionX(), obj1.getPositionY(), obj2.getPositionX(), obj2.getPositionY());
     }
@@ -108,6 +131,16 @@ public abstract class GameObject {
         return height;
     }
 
+    public double getVelocityX() {
+        return velocityX;
+    }
+    public double getVelocityY() {
+        return velocityY;
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
     public void setBitmap(Bitmap bitmap) {
         this.width = bitmap.getWidth();
         this.height = bitmap.getHeight();

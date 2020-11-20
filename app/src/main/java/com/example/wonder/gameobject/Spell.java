@@ -1,12 +1,8 @@
 package com.example.wonder.gameobject;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 
-import com.example.wonder.GameDisplay;
 import com.example.wonder.GameLoop;
 import com.example.wonder.R;
 

@@ -2,13 +2,11 @@ package com.example.wonder.gameobject;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.wonder.GameDisplay;
 import com.example.wonder.GameLoop;
+import com.example.wonder.Room;
 import com.example.wonder.gamepanel.Joystick;
 import com.example.wonder.R;
 import com.example.wonder.Utils;
@@ -24,10 +22,11 @@ public class Player extends Sprite {
     public static final double MAX_SPEED = SPEED_PIXELS_PER_SECOND / GameLoop.MAX_UPS;
     private final Joystick joystick;
 
-    public Player(Context context, Joystick joystick, double positionX, double positionY) {
+    public Player(Context context, Joystick joystick, Room room, double positionX, double positionY) {
         super(
                 context,
                 BitmapFactory.decodeResource(context.getResources(), R.drawable.orielpx_front),
+                room,
                 positionX,
                 positionY,
                 10,
@@ -45,6 +44,8 @@ public class Player extends Sprite {
         // Update position
         positionX += velocityX;
         positionY += velocityY;
+
+        keepInBounds();
 
         // Update direction
         if (velocityX != 0 || velocityY != 0) {

@@ -2,14 +2,12 @@ package com.example.wonder.gameobject;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.wonder.GameDisplay;
 import com.example.wonder.GameLoop;
 import com.example.wonder.R;
-import com.example.wonder.Utils;
+import com.example.wonder.Room;
 
 import java.util.Random;
 
@@ -35,20 +33,45 @@ public class Enemy extends Sprite {
     private final Player player;
     private static Random rg = new Random();
 
-    public Enemy(Context context, Player player) {
+    public Enemy(Context context, Player player, Room room) {
         super(
                 context,
                 BitmapFactory.decodeResource(context.getResources(), R.drawable.golempx_front),
-                rg.nextInt((int) ((player.getPositionX() + 500) - (player.getPositionX() - 500))) + (player.getPositionX() - 500),
-                rg.nextInt((int) ((player.getPositionY() + 500) - (player.getPositionY() - 500))) + (player.getPositionX() - 500),
+                room,
+                0,
+                0,
                 2,
                 ContextCompat.getColor(context, R.color.statusBarEnemyHealth)
         );
 
-        while (GameObject.isColliding(this, player)) {
-            positionX = rg.nextInt((int) ((player.getPositionX() + 500) - (player.getPositionX() - 500))) + (player.getPositionX() - 500);
-            positionY = rg.nextInt((int) ((player.getPositionY() + 500) - (player.getPositionY() - 500))) + (player.getPositionX() - 500);
+        int radiusDistanceToPlayer = 5;
+
+        int minPositionX  = (int) room.positionX;
+        int maxPositionX = (int) room.positionX;
+        if (rg.nextInt(2) == 0 && (int) player.positionX - radiusDistanceToPlayer - (int) room.positionX > this.width) {
+            // Enemy spawns to the left of the player
+            minPositionX = (int) room.positionX;
+            maxPositionX = (int) player.positionX - this.width - radiusDistanceToPlayer;
+        } else if ((int) room.positionX + room.width - ((int) player.positionX + player.width + radiusDistanceToPlayer) >  this.width){
+            // Enemy spawns to the right of the player
+            minPositionX = (int) player.positionX + player.width + radiusDistanceToPlayer;
+            maxPositionX = (int) room.positionX + room.width - this.width;
         }
+
+        int minPositionY  = (int) room.positionY;
+        int maxPositionY = (int) room.positionY;
+        if (rg.nextInt(2) == 0 && (int) player.positionY - radiusDistanceToPlayer - (int) room.positionY > this.height) {
+            // Enemy spawns above the player
+            minPositionY = (int) room.positionY;
+            maxPositionY = (int) player.positionY - this.height - radiusDistanceToPlayer;
+        } else if ((int) room.positionY + room.height - ((int) player.positionY + player.height + radiusDistanceToPlayer) >  this.height) {
+            // Enemy spawns under the player
+            minPositionY = (int) player.positionY + player.height + radiusDistanceToPlayer;
+            maxPositionY = (int) room.positionY + room.height - this.height;
+        }
+
+        positionX = rg.nextInt(maxPositionX - minPositionX) + minPositionX;
+        positionY = rg.nextInt(maxPositionY - minPositionY) + minPositionY;
 
         this.player = player;
     }
@@ -104,6 +127,8 @@ public class Enemy extends Sprite {
         // Update the position of the enemy
         positionX += velocityX;
         positionY += velocityY;
+
+        keepInBounds();
 
         // TODO: Update bitmap according to direction
         /**if (velocityX != 0 || velocityY != 0) {

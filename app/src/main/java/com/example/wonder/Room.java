@@ -1,10 +1,8 @@
 package com.example.wonder;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
@@ -17,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Room {
+public class Room extends GameObject {
 
     private Context context;
     private Player player;
@@ -25,52 +23,18 @@ public class Room {
     private List<Spell> spellList = new ArrayList<Spell>();
     private List<Spell> enemySpellList = new ArrayList<Spell>();
     private int numberOfSpellsToCast = 0;
-    private Bitmap floorBitmap;
-    private Bitmap  wallBitmap;
-    private double positionX;
-    private double positionY;
 
     public Room(Context context, Player player) {
+        super(BitmapFactory.decodeResource(context.getResources(), R.drawable.tmp_room), 0, 0);
         this.context = context;
         this.player = player;
-        floorBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.tmp_room_floor);
-        wallBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.tmp_room_wall);
-        positionX = 0;
-        positionY = 0;
-    }
-
-    public boolean isObjectInBounds(GameObject obj) {
-        // Check top & bottom
-        for (int col = (int) obj.getPositionX(); col < (int) (obj.getPositionX() + obj.getWidth()); col++) {
-            if (floorBitmap.getPixel(col, (int) obj.getPositionY()) == Color.TRANSPARENT  ||
-                    floorBitmap.getPixel(col, (int) (obj.getPositionY() + obj.getHeight())) == Color.TRANSPARENT ) {
-                return false;
-            }
-        }
-
-        // Check right & left
-        for (int row = (int) obj.getPositionY(); row < (int) (obj.getPositionY() + obj.getHeight()); row++) {
-            if (floorBitmap.getPixel((int) obj.getPositionX(), row) == Color.TRANSPARENT  || floorBitmap.getPixel((int) (obj.getPositionX() + obj.getWidth()), row) == Color.TRANSPARENT ) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public void draw(Canvas canvas, GameDisplay gameDisplay) {
-        // Draw floor
+        // Draw room
         Paint paint = new Paint();
         canvas.drawBitmap(
-                floorBitmap,
-                (float) gameDisplay.gameToDisplayCoordinatesX(positionX),
-                (float) gameDisplay.gameToDisplayCoordinatesY(positionY),
-                paint
-        );
-
-        // Draw walls
-        canvas.drawBitmap(
-                wallBitmap,
+                bitmap,
                 (float) gameDisplay.gameToDisplayCoordinatesX(positionX),
                 (float) gameDisplay.gameToDisplayCoordinatesY(positionY),
                 paint
@@ -104,7 +68,7 @@ public class Room {
 
         // Spawn enemy if it is time to spawn new enemies
         if (Enemy.readyToSpawn()) {
-            enemyList.add(new Enemy(context, player));
+            enemyList.add(new Enemy(context, player, this));
         }
 
         // Player casts a spell if requested
@@ -145,11 +109,12 @@ public class Room {
                 continue;
             }
 
+            Iterator<Spell> enemySpellIterator = enemySpellList.iterator();
             Iterator<Spell> spellIterator = spellList.iterator();
             while (spellIterator.hasNext()) {
                 Spell spell = spellIterator.next();
-                // Remove spell if it collides with an enemy
                 if (GameObject.isColliding(spell, enemy)) {
+                    // Remove spell if it collides with an enemy
                     spellIterator.remove();
                     enemy.setHealthPoints(enemy.getHealthPoints() - spell.getDamagePoints());
                     if (enemy.getHealthPoints() == 0) {
@@ -157,26 +122,77 @@ public class Room {
                     }
                     break;
                 }
+
+                if (enemySpellIterator.hasNext()) {
+                    Spell enemySpell = enemySpellIterator.next();
+                    if (GameObject.isColliding(spell, enemySpell)) {
+                        // If enemySpell and spell collide, remove both
+                        spellIterator.remove();
+                        enemySpellIterator.remove();
+                        break;
+                    }
+                }
             }
 
-            Iterator<Spell> enemySpellIterator = enemySpellList.iterator();
             while (enemySpellIterator.hasNext()) {
                 Spell enemySpell = enemySpellIterator.next();
-                // Remove enemySpell if it collides with the player
-                if (GameObject.isColliding(enemySpell, player)) {
+
+                // Remove enemySpell if it reaches a wall
+                if (enemySpell.getPositionY() < this.positionY ||
+                        enemySpell.getPositionX() < this.positionX ||
+                        enemySpell.getPositionY() + enemySpell.getHeight() > this.positionY + this.height ||
+                        enemySpell.getPositionX() + enemySpell.getWidth() > this.positionX + this.width) {
+                    enemySpellIterator.remove();
+                } else if (GameObject.isColliding(enemySpell, player)) {
+                    // Remove enemySpell if it collides with the player
                     enemySpellIterator.remove();
                     player.setHealthPoints(player.getHealthPoints() - enemySpell.getDamagePoints());
                     Log.d("Game.java", "enemySpell collision. X: " + enemySpell.getPositionX() + ", Y: " + enemySpell.getPositionY());
                     break;
                 }
+                if (spellIterator.hasNext()) {
+                    Spell spell = spellIterator.next();
+                    if (GameObject.isColliding(spell, enemySpell)) {
+                        // If enemySpell and spell collide, remove both
+                        spellIterator.remove();
+                        enemySpellIterator.remove();
+                        break;
+                    }
+                }
+            }
+        }
+
+        Iterator<Spell> enemySpellIterator = enemySpellList.iterator();
+        Iterator<Spell> spellIterator = spellList.iterator();
+        while (spellIterator.hasNext()) {
+            Spell spell = spellIterator.next();
+
+            // Remove spell if it reaches a wall
+            if (spell.getPositionY() < this.positionY ||
+                    spell.getPositionX() < this.positionX ||
+                    spell.getPositionY() + spell.getHeight() > this.positionY + this.height ||
+                    spell.getPositionX() + spell.getWidth() > this.positionX + this.width) {
+                spellIterator.remove();
+                break;
             }
 
-            // TODO: If enemySpell and spell collide, remove both
+            if (enemySpellIterator.hasNext()) {
+                Spell enemySpell = enemySpellIterator.next();
+                if (GameObject.isColliding(spell, enemySpell)) {
+                    // If enemySpell and spell collide, remove both
+                    spellIterator.remove();
+                    enemySpellIterator.remove();
+                    break;
+                }
+            }
         }
     }
 
     public Player getPlayer() {
         return player;
+    }
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public int getNumberOfSpellsToCast() {

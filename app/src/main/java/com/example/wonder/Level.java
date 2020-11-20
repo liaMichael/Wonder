@@ -4,14 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-import com.example.wonder.gameobject.Enemy;
 import com.example.wonder.gameobject.Player;
-import com.example.wonder.gameobject.Spell;
 import com.example.wonder.gamepanel.GameOver;
 import com.example.wonder.gamepanel.Joystick;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Level {
 
@@ -33,7 +28,7 @@ public class Level {
 
     public Level(Context context, GameDisplay gameDisplay) {
         this.gameDisplay = gameDisplay;
-        player = new Player(context, joystick, 500, 500);
+        player = new Player(context, joystick, room,500, 500);
         joystick = new Joystick(275, 700, 70, 40);
         room = new Room(context, player);
 

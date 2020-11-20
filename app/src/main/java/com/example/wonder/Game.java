@@ -9,18 +9,10 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.example.wonder.gameobject.GameObject;
-import com.example.wonder.gameobject.Sprite;
-import com.example.wonder.gameobject.Enemy;
 import com.example.wonder.gameobject.Player;
-import com.example.wonder.gameobject.Spell;
 import com.example.wonder.gamepanel.GameOver;
 import com.example.wonder.gamepanel.Joystick;
 import com.example.wonder.gamepanel.Performance;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  *  Game manages all objects in the game and is responsible for updating all states and render all objects to the screen
@@ -51,9 +43,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         joystick = new Joystick(275, 700, 70, 40);
 
         // Initialize game objects
-        player = new Player(context, joystick, 500, 500);
-
-        room = new Room(context, player);
+        room = new Room(context, null);
+        player = new Player(context, joystick, room, 500, 500);
+        room.setPlayer(player);
 
         // Initialize game display and center it around the player
         DisplayMetrics displayMetrics = new DisplayMetrics();
