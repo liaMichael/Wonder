@@ -12,7 +12,6 @@ public class Level {
 
     private GameDisplay gameDisplay;
 
-    private Player player;
     private Joystick joystick;
     private Room room;
     private GameOver gameOver;
@@ -28,9 +27,8 @@ public class Level {
 
     public Level(Context context, GameDisplay gameDisplay) {
         this.gameDisplay = gameDisplay;
-        player = new Player(context, joystick, room,500, 500);
         joystick = new Joystick(275, 700, 70, 40);
-        room = new Room(context, player);
+        room = new Room(context, joystick);
 
         gameOver = new GameOver(context);
 
@@ -45,7 +43,6 @@ public class Level {
 
     public Level(Context context, GameDisplay gameDisplay, Player player, Joystick joystick, Room room) {
         this.gameDisplay = gameDisplay;
-        this.player = player;
         this.joystick = joystick;
         this.room = room;
 

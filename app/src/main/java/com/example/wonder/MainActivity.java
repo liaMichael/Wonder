@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         loginDialog = dialogBuilder.create();
         loginDialog.show();
 
-        //Login button
+        // Login button
         final Button loginBtn = loginPopupView.findViewById(R.id.button_login);
         loginBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                         loginDialog.dismiss();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if(!rect.contains(view.getLeft() + (int) event.getX(), view.getTop() + (int) event.getY())) {
+                        if (!rect.contains(view.getLeft() + (int) event.getX(), view.getTop() + (int) event.getY())) {
                             // User moved outside bounds
                             loginBtn.setBackgroundResource(R.drawable.login_btn);
                         }
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Close button
+        // Close button
         final Button closeBtn = loginPopupView.findViewById(R.id.button_closelogin);
         closeBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Signup text press
+        // Signup text press
         final TextView singupText = loginPopupView.findViewById(R.id.textView_signup);
         singupText.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -295,8 +295,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
-
-        //Get email & password
+        // Get email & password
         EditText emailEditText = view.findViewById(R.id.editText_email_login);
         EditText passwordEditText = view.findViewById(R.id.editText_password_login);
 
@@ -306,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
             updateUI(null);
         }
 
-        //Sign in user with the email & password
+        // Sign in user with the email & password
         mAuth.signInWithEmailAndPassword(emailEditText.getText().toString(), passwordEditText.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -379,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Close button
+        // Close button
         final Button closeBtn = signupPopupView.findViewById(R.id.button_closesignup);
         closeBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override

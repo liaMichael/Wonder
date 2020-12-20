@@ -3,7 +3,9 @@ package com.example.wonder.gameobject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
+import com.example.wonder.Direction;
 import com.example.wonder.GameDisplay;
 import com.example.wonder.Room;
 import com.example.wonder.gamepanel.StatusBar;
@@ -14,12 +16,17 @@ import com.example.wonder.gamepanel.StatusBar;
  */
 public abstract class Sprite extends GameObject {
 
+    protected Bitmap[] rightWalkingAnimation;
+    protected Bitmap[] leftWalkingAnimation;
+    protected Bitmap[] downWalkingAnimation;
+    protected Bitmap[] upWalkingAnimation;
+    protected Direction direction = Direction.DOWN;
     protected Room room;
     protected StatusBar healthBar;
     protected int maxHealthPoints;
     protected int healthPoints;
 
-    public Sprite(Context context, Bitmap bitmap, Room room, double positionX, double positionY, int maxHealthPoints, int healthColor) {
+    public Sprite(Context context, Bitmap bitmap, Bitmap[] rightWalkingAnimation, Bitmap[] leftWalkingAnimation, Bitmap[] downWalkingAnimation, Bitmap[] upWalkingAnimation, Room room, double positionX, double positionY, int maxHealthPoints, int healthColor) {
         super(bitmap, positionX, positionY);
         this.room = room;
         this.width = bitmap.getWidth();
@@ -27,10 +34,21 @@ public abstract class Sprite extends GameObject {
         this.maxHealthPoints = maxHealthPoints;
         this.healthBar = new StatusBar(context,this, healthColor);
         healthPoints = maxHealthPoints;
+        this.rightWalkingAnimation = rightWalkingAnimation;
+        this.leftWalkingAnimation = leftWalkingAnimation;
+        this.downWalkingAnimation = downWalkingAnimation;
+        this.upWalkingAnimation = upWalkingAnimation;
     }
 
+    @Override
     public void draw(Canvas canvas, GameDisplay gameDisplay) {
-        super.draw(canvas, gameDisplay);
+        Paint paint = new Paint();
+        canvas.drawBitmap(
+                bitmap,
+                (float) gameDisplay.gameToDisplayCoordinatesX(positionX),
+                (float) gameDisplay.gameToDisplayCoordinatesY(positionY),
+                paint
+        );
     }
 
     public void keepInBounds() {
@@ -51,7 +69,6 @@ public abstract class Sprite extends GameObject {
     public int getHealthPoints() {
         return healthPoints;
     }
-
     public void setHealthPoints(int healthPoints) {
         // Only allow positive values
         if (healthPoints >= 0)
@@ -64,5 +81,9 @@ public abstract class Sprite extends GameObject {
 
     public StatusBar getHealthBar() {
         return healthBar;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 }

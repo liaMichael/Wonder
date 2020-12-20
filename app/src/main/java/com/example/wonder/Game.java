@@ -20,7 +20,6 @@ import com.example.wonder.gamepanel.Performance;
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     private final Joystick joystick;
-    private final Player player;
     private Room room;
     private GameLoop gameLoop;
     private int joystickPointerId = 0;
@@ -40,17 +39,15 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
        // Initialize game panels / UIs
         performance = new Performance(context, gameLoop);
         gameOver = new GameOver(context);
-        joystick = new Joystick(275, 700, 70, 40);
+        joystick = new Joystick(275, 800, 80, 50);
 
         // Initialize game objects
-        room = new Room(context, null);
-        player = new Player(context, joystick, room, 500, 500);
-        room.setPlayer(player);
+        room = new Room(context, joystick);
 
         // Initialize game display and center it around the player
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        gameDisplay = new GameDisplay(displayMetrics.widthPixels, displayMetrics.heightPixels, player);
+        gameDisplay = new GameDisplay(displayMetrics.widthPixels, displayMetrics.heightPixels, room.getPlayer());
 
         setFocusable(true);
     }

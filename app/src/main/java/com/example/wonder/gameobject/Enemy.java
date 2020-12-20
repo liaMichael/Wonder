@@ -1,10 +1,12 @@
 package com.example.wonder.gameobject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.wonder.Direction;
 import com.example.wonder.GameLoop;
 import com.example.wonder.R;
 import com.example.wonder.Room;
@@ -19,7 +21,7 @@ public class Enemy extends Sprite {
 
     private Context context;
 
-    private static final double SPEED_PIXELS_PER_SECOND = Player.SPEED_PIXELS_PER_SECOND  * 0.4;
+    private static final double SPEED_PIXELS_PER_SECOND = Player.SPEED_PIXELS_PER_SECOND  * 0.2;
     private static final double MAX_SPEED = SPEED_PIXELS_PER_SECOND / GameLoop.MAX_UPS;
 
     private static final double SPAWNS_PER_MINUTE = 20;
@@ -31,12 +33,17 @@ public class Enemy extends Sprite {
     private static double updatesUntilNextSpellCast = UPDATES_PER_SPELL_CAST;
 
     private final Player player;
+    private MoveableObject mudCube;
     private static Random rg = new Random();
 
     public Enemy(Context context, Player player, Room room) {
         super(
                 context,
-                BitmapFactory.decodeResource(context.getResources(), R.drawable.golempx_front),
+                BitmapFactory.decodeResource(context.getResources(), R.drawable.golempx_down),
+                null,
+                null,
+                null,
+                null,
                 room,
                 0,
                 0,
@@ -44,10 +51,12 @@ public class Enemy extends Sprite {
                 ContextCompat.getColor(context, R.color.statusBarEnemyHealth)
         );
 
+        this.context = context;
+
         int radiusDistanceToPlayer = 5;
 
         int minPositionX  = (int) room.positionX;
-        int maxPositionX = (int) room.positionX;
+        int maxPositionX = (int) room.positionX ;
         if (rg.nextInt(2) == 0 && (int) player.positionX - radiusDistanceToPlayer - (int) room.positionX > this.width) {
             // Enemy spawns to the left of the player
             minPositionX = (int) room.positionX;
@@ -70,8 +79,21 @@ public class Enemy extends Sprite {
             maxPositionY = (int) room.positionY + room.height - this.height;
         }
 
-        positionX = rg.nextInt(maxPositionX - minPositionX) + minPositionX;
-        positionY = rg.nextInt(maxPositionY - minPositionY) + minPositionY;
+        if (maxPositionX == minPositionX) {
+            positionX = maxPositionX;
+        } else {
+            while (mudCube != null) {
+                positionX = rg.nextInt(maxPositionX - minPositionX) + minPositionX;
+            }
+        }
+
+        if (maxPositionY == minPositionY) {
+            positionY = maxPositionY;
+        } else {
+            while (mudCube != null) {
+                positionY = rg.nextInt(maxPositionY - minPositionY) + minPositionY;
+            }
+        }
 
         this.player = player;
     }
@@ -120,31 +142,77 @@ public class Enemy extends Sprite {
             directionY = distanceToPlayerY / distanceToPlayer;
         }
 
+        // TODO: Update bitmap animation according to direction
+        // Update direction if moving
+        if (velocityX != 0 || velocityY != 0) {
+            if (velocityX > 0 && velocityX >= Math.abs(velocityY)) {
+                // Moving right
+                updateDirection(Direction.RIGHT);
+                //bitmap = rightWalkingAnimation[(int) currentImageIndex];
+            } else if (velocityX < 0 && Math.abs(velocityX) >= Math.abs(velocityY)) {
+                // Moving left
+                updateDirection(Direction.LEFT);
+                //bitmap = leftWalkingAnimation[(int) currentImageIndex];
+            } else if (velocityY < 0 && Math.abs(velocityY) >= Math.abs(velocityX)) {
+                // Moving up
+                updateDirection(Direction.UP);
+                //bitmap = upWalkingAnimation[(int) currentImageIndex];
+            } else {
+                // Moving down
+                updateDirection(Direction.DOWN);
+                //bitmap = downWalkingAnimation[(int) currentImageIndex];
+            }
+        }
+
+        // Update bitmap according to direction
+        bitmap = findBitmapByName("golempx_" + direction.toString().toLowerCase());
+        width = bitmap.getWidth();
+        height = bitmap.getHeight();
+
         // Set velocity in the direction of the player
         velocityX = directionX * MAX_SPEED;
         velocityY = directionY * MAX_SPEED;
 
+        keepInBounds();
+
+        if (mudCube != null) {
+            if ((positionX > mudCube.positionX && velocityX < 0) ||
+                    (positionX < mudCube.positionX && velocityX > 0)) {
+                // Enemy moving towards the cube in the X axis
+                velocityX = 0;
+            }
+
+            if ((positionY > mudCube.positionY && velocityY < 0) ||
+                    (positionY < mudCube.positionY && velocityY > 0)) {
+                // Enemy moving towards the cube in the Y axis
+                velocityY = 0;
+            }
+        }
+
         // Update the position of the enemy
         positionX += velocityX;
         positionY += velocityY;
+    }
 
-        keepInBounds();
+    private void updateDirection(Direction newDirection) {
+        if (direction != newDirection) {
+            direction = newDirection;
+        }
+    }
 
-        // TODO: Update bitmap according to direction
-        /**if (velocityX != 0 || velocityY != 0) {
-            if (velocityX > 0 && velocityX >= Math.abs(velocityY)) {
-                // Moving right
-                //Log.d("Enemy.java", "Moving right");
-            } else if (velocityX < 0 && Math.abs(velocityX) >= Math.abs(velocityY)) {
-                // Moving left
-                //Log.d("Enemy.java", "Moving left");
-            } else if (velocityY < 0 && Math.abs(velocityY) >= Math.abs(velocityX)) {
-                // Moving up
-                //Log.d("Enemy.java", "Moving up");
-            } else {
-                // Moving down
-                //Log.d("Enemy.java", "Moving down");
-            }
-        }**/
+    private Bitmap findBitmapByName(String name) {
+        int resId = context.getResources().getIdentifier(
+                name,
+                "drawable",
+                context.getPackageName()
+        );
+        return BitmapFactory.decodeResource(context.getResources(), resId);
+    }
+
+    public MoveableObject getMudCube() {
+        return mudCube;
+    }
+    public void setMudCube(MoveableObject mudCube) {
+        this.mudCube = mudCube;
     }
 }

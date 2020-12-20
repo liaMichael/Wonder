@@ -99,22 +99,14 @@ public abstract class GameObject {
 
     public abstract void update();
 
+    protected static double getDistanceBetweenObjects(GameObject obj1, GameObject obj2) {
+        return Utils.getDistanceBetweenPoints(obj1.getPositionX(), obj1.getPositionY(), obj2.getPositionX(), obj2.getPositionY());
+    }
     public double getPositionX() {
         return positionX;
     }
     public double getPositionY() {
         return positionY;
-    }
-
-    public void setPositionX(double positionX) {
-        this.positionX = positionX;
-    }
-    public void setPositionY(double positionY) {
-        this.positionY = positionY;
-    }
-
-    protected static double getDistanceBetweenObjects(GameObject obj1, GameObject obj2) {
-        return Utils.getDistanceBetweenPoints(obj1.getPositionX(), obj1.getPositionY(), obj2.getPositionX(), obj2.getPositionY());
     }
 
     protected double getDirectionX() {
@@ -134,16 +126,16 @@ public abstract class GameObject {
     public double getVelocityX() {
         return velocityX;
     }
+
     public double getVelocityY() {
         return velocityY;
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
+    public void setVelocityX(double velocityX) {
+        this.velocityX = velocityX;
     }
-    public void setBitmap(Bitmap bitmap) {
-        this.width = bitmap.getWidth();
-        this.height = bitmap.getHeight();
-        this.bitmap = bitmap;
+
+    public void setVelocityY(double velocityY) {
+        this.velocityY = velocityY;
     }
 }
