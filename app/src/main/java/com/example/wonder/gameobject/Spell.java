@@ -24,7 +24,7 @@ public class Spell extends GameObject {
         velocityY = spellCaster.getDirectionY() * MAX_SPEED;
 
         this.spellCaster = spellCaster;
-        damagePoints = 1;
+        damagePoints = spellCaster.damagePoints;
     }
 
     public void update() {
@@ -34,5 +34,8 @@ public class Spell extends GameObject {
 
     public int getDamagePoints() {
         return damagePoints;
+    }
+    public void setDamagePoints(int damagePoints) {
+        this.damagePoints = damagePoints;
     }
 }

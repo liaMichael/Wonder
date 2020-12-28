@@ -109,6 +109,13 @@ public abstract class GameObject {
         return positionY;
     }
 
+    public void setPositionX(double positionX) {
+        this.positionX = positionX;
+    }
+    public void setPositionY(double positionY) {
+        this.positionY = positionY;
+    }
+
     protected double getDirectionX() {
         return directionX;
     }

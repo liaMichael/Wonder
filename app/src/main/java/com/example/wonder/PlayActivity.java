@@ -23,7 +23,7 @@ public class PlayActivity extends AppCompatActivity {
         Window window = getWindow();
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        // Set content viw to game, so that objects in the Game class can be rendered to the screen
+        // Set content view to game, so that objects in the Game class can be rendered to the screen
         game = new Game(this);
         setContentView(game);
     }

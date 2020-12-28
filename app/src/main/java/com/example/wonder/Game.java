@@ -10,6 +10,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.example.wonder.gameobject.Player;
+import com.example.wonder.gameobject.Room;
 import com.example.wonder.gamepanel.GameOver;
 import com.example.wonder.gamepanel.Joystick;
 import com.example.wonder.gamepanel.Performance;
@@ -22,7 +23,8 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final Joystick joystick;
     private Room room;
     private GameLoop gameLoop;
-    private int joystickPointerId = 0;
+    private Level[] levels;
+    private int levelNum;
     private GameOver gameOver;
     private Performance performance;
     private GameDisplay gameDisplay;
@@ -39,7 +41,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
        // Initialize game panels / UIs
         performance = new Performance(context, gameLoop);
         gameOver = new GameOver(context);
-        joystick = new Joystick(275, 800, 80, 50);
+        joystick = new Joystick(context, 275, 850, 150, 70);
 
         // Initialize game objects
         room = new Room(context, joystick);
@@ -49,44 +51,19 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         gameDisplay = new GameDisplay(displayMetrics.widthPixels, displayMetrics.heightPixels, room.getPlayer());
 
+        levels = new Level[2];
+        levelNum = 0;
+        for (int i = 0; i< levels.length; i++) {
+            levels[i] = new Level(context, gameDisplay, joystick, room);
+        }
+
         setFocusable(true);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // Handle touch event actions
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_POINTER_DOWN:
-                if (joystick.getIsPressed()) {
-                    // Joystick was pressed before this event -> cast spell
-                    room.setNumberOfSpellsToCast(room.getNumberOfSpellsToCast() + 1);
-                } else if (joystick.isPressed((double) event.getX(), (double) event.getY())) {
-                    // Joystick is pressed in this event -> setIsPressed(true) and store ID
-                    joystickPointerId = event.getPointerId(event.getActionIndex());
-                    joystick.setIsPressed(true);
-                } else {
-                    // Joystick was not pressed previously, and is not pressed in this event -> cast spell
-                    room.setNumberOfSpellsToCast(room.getNumberOfSpellsToCast() + 1);
-                }
-                return true;
-            case MotionEvent.ACTION_MOVE:
-                // Joystick was pressed previously and is now moved
-                if (joystick.getIsPressed()) {
-                    joystick.setActuator((double) event.getX(), (double) event.getY());
-                }
-                return true;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_POINTER_UP:
-                if (joystickPointerId == event.getPointerId(event.getActionIndex())) {
-                    // Joystick was let go of -> setIsPressed(false) and resetActuator
-                    joystick.setIsPressed(false);
-                    joystick.resetActuator();
-                }
-                return true;
-        }
-
-        return super.onTouchEvent(event);
+        return super.onTouchEvent(event) || levels[levelNum].onTouchEvent(event);
     }
 
     @Override
@@ -112,33 +89,42 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        // Draw game objects
-        room.draw(canvas, gameDisplay);
+        // Draw level
+        levels[levelNum].draw(canvas);
 
-        // Draw game panels
-        joystick.draw(canvas);
         performance.draw(canvas);
-
-        // Draw Game over if the player is dead
-        if (room.getPlayer().getHealthPoints() <= 0) {
-            gameOver.draw(canvas);
-        }
     }
 
     public void update() {
-        // Stop updating the game if the player is dead
-        if (room.getPlayer().getHealthPoints() <= 0) {
-            return;
+        levels[levelNum].update();
+        if (room.isFinish() && levelNum + 1 <= levels.length - 1) {
+            levelNum++;
+            newLevel();
         }
-
-        // Update game state
-        joystick.update();
-        room.update();
-
-        gameDisplay.update();
     }
 
     public void pause() {
         gameLoop.stopLoop();
+    }
+
+    private void newLevel() {
+        room = new Room(getContext(), joystick);
+
+        room.getPlayer().setPositionX(room.getPositionX() + room.getWidth() / 2.0);
+        room.getPlayer().setPositionY(room.getPositionY() + room.getHeight() - room.getPlayer().getHeight());
+
+        // Changeable
+        room.setNumberOfEnemies(10);
+        room.setPlayerSpellDamagePoints(1);
+        room.setEnemySpellDamagePoints(1);
+        room.setPlayerMaxHealthPoints(10);
+        room.setEnemyMaxHealthPoints(2);
+        room.setEnemySpeedPixelsPerSecond(Player.SPEED_PIXELS_PER_SECOND * 0.1 * (levelNum + 1));
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        gameDisplay = new GameDisplay(displayMetrics.widthPixels, displayMetrics.heightPixels, room.getPlayer());
+
+        levels[levelNum] = new Level(getContext(), gameDisplay, joystick, room);
     }
 }

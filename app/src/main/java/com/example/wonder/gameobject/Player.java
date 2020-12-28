@@ -3,16 +3,17 @@ package com.example.wonder.gameobject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
+import android.graphics.Canvas;
 
 import androidx.core.content.ContextCompat;
 
 import com.example.wonder.Direction;
+import com.example.wonder.GameDisplay;
 import com.example.wonder.GameLoop;
-import com.example.wonder.Room;
 import com.example.wonder.gamepanel.Joystick;
 import com.example.wonder.R;
 import com.example.wonder.Utils;
+import com.example.wonder.gamepanel.StatusBar;
 
 /**
  * Player is the main character of the game, which the user can control with a touch joystick.
@@ -20,14 +21,18 @@ import com.example.wonder.Utils;
  */
 public class Player extends Sprite {
 
-    private static Context context;
-    public static final double SPEED_PIXELS_PER_SECOND = 400.0;
-    public static final double MAX_SPEED = SPEED_PIXELS_PER_SECOND / GameLoop.MAX_UPS;
+    private Context context;
+    public static double SPEED_PIXELS_PER_SECOND = 400.0;
+    public static double MAX_SPEED = SPEED_PIXELS_PER_SECOND / GameLoop.MAX_UPS;
     private final Joystick joystick;
     private MoveableObject mudCube;
     private double currentImageIndex = 0;
     private boolean pushingCube = false;
     private Direction directionToCube = Direction.RIGHT;
+
+    protected StatusBar wonderBar;
+    protected int maxWonderPoints = 50;
+    protected int wonderPoints = maxWonderPoints;
 
     public Player(Context context, Joystick joystick, Room room, double positionX, double positionY) {
         super(
@@ -43,6 +48,10 @@ public class Player extends Sprite {
                 10,
                 ContextCompat.getColor(context, R.color.statusBarPlayerHealth)
         );
+
+        wonderBar = new StatusBar(context, this, R.color.wonderLike);
+
+
         this.joystick = joystick;
         this.context = context;
         mudCube = null;
@@ -75,6 +84,17 @@ public class Player extends Sprite {
         }
     }
 
+    @Override
+    public void draw(Canvas canvas, GameDisplay gameDisplay) {
+        super.draw(canvas, gameDisplay);
+        wonderBar.setPositionX((float) positionX);
+        wonderBar.setPositionY(healthBar.getPositionY() - wonderBar.getHeight() - 2);
+        if (wonderPoints < 0) {
+            wonderPoints = 0;
+        }
+        wonderBar.draw(canvas, gameDisplay, wonderPoints, maxWonderPoints);
+    }
+
     public void update() {
         // Update bitmap according to direction
         bitmap = findBitmapByName("orielpx_" + direction.toString().toLowerCase());
@@ -86,8 +106,6 @@ public class Player extends Sprite {
         velocityY = joystick.getActuatorY() * MAX_SPEED;
 
         //Log.d("Player.java", "velocityX: " + velocityX + ". velocityY:" + velocityY + ".");
-
-        keepInBounds();
 
         // Determine whether player can push cube
         pushingCube = false;
@@ -168,8 +186,11 @@ public class Player extends Sprite {
                 bitmap = downWalkingAnimation[(int) currentImageIndex];
             }
             // Set frame from animation array
-            currentImageIndex += 0.3;
+            currentImageIndex += (distance / MAX_SPEED) * 0.45;
             currentImageIndex %= 8;
+
+            width = bitmap.getWidth();
+            height = bitmap.getHeight();
 
             if (mudCube == null || direction != mudCube.getDirection()) {
                 pushingCube = false;
@@ -187,7 +208,7 @@ public class Player extends Sprite {
 
             // Keep cube in bounds
             if (mudCube != null) {
-                if (mudCube.positionY < room.positionY) {
+                if (mudCube.positionY < room.positionY + room.TILE_SIZE) {
                     if (pushingCube && mudCube.getDirection() == Direction.UP) {
                         pushingCube = false;
                     }
@@ -264,6 +285,8 @@ public class Player extends Sprite {
             // Update position
             positionX += velocityX;
             positionY += velocityY;
+
+            keepInBounds();
         }
     }
 

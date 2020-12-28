@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat;
 import com.example.wonder.Direction;
 import com.example.wonder.GameLoop;
 import com.example.wonder.R;
-import com.example.wonder.Room;
 
 import java.util.Random;
 
@@ -21,8 +20,8 @@ public class Enemy extends Sprite {
 
     private Context context;
 
-    private static final double SPEED_PIXELS_PER_SECOND = Player.SPEED_PIXELS_PER_SECOND  * 0.2;
-    private static final double MAX_SPEED = SPEED_PIXELS_PER_SECOND / GameLoop.MAX_UPS;
+    private static double speedPixelsPerSecond = Player.SPEED_PIXELS_PER_SECOND  * 0.2;
+    private static double maxSpeed = speedPixelsPerSecond / GameLoop.MAX_UPS;
 
     private static final double SPAWNS_PER_MINUTE = 20;
     private static final double UPDATES_PER_SPAWN = GameLoop.MAX_UPS / (SPAWNS_PER_MINUTE / 60.0);
@@ -82,6 +81,7 @@ public class Enemy extends Sprite {
         if (maxPositionX == minPositionX) {
             positionX = maxPositionX;
         } else {
+            positionX = rg.nextInt(maxPositionX - minPositionX) + minPositionX;
             while (mudCube != null) {
                 positionX = rg.nextInt(maxPositionX - minPositionX) + minPositionX;
             }
@@ -90,6 +90,7 @@ public class Enemy extends Sprite {
         if (maxPositionY == minPositionY) {
             positionY = maxPositionY;
         } else {
+            positionY = rg.nextInt(maxPositionY - minPositionY) + minPositionY;
             while (mudCube != null) {
                 positionY = rg.nextInt(maxPositionY - minPositionY) + minPositionY;
             }
@@ -170,8 +171,8 @@ public class Enemy extends Sprite {
         height = bitmap.getHeight();
 
         // Set velocity in the direction of the player
-        velocityX = directionX * MAX_SPEED;
-        velocityY = directionY * MAX_SPEED;
+        velocityX = directionX * maxSpeed;
+        velocityY = directionY * maxSpeed;
 
         keepInBounds();
 
@@ -214,5 +215,10 @@ public class Enemy extends Sprite {
     }
     public void setMudCube(MoveableObject mudCube) {
         this.mudCube = mudCube;
+    }
+
+    public static void setSpeedPixelsPerSecond(double speedPixelsPerSecond) {
+        Enemy.speedPixelsPerSecond = speedPixelsPerSecond;
+        maxSpeed = speedPixelsPerSecond / GameLoop.MAX_UPS;
     }
 }

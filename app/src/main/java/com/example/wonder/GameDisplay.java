@@ -34,4 +34,8 @@ public class GameDisplay {
     public double gameToDisplayCoordinatesY(double y) {
         return y + gameToDisplayCoordinateOffsetY;
     }
+
+    public double getDisplayCenterX() {
+        return displayCenterX;
+    }
 }

@@ -7,7 +7,6 @@ import android.graphics.Paint;
 
 import com.example.wonder.Direction;
 import com.example.wonder.GameDisplay;
-import com.example.wonder.Room;
 import com.example.wonder.gamepanel.StatusBar;
 
 /**
@@ -25,6 +24,7 @@ public abstract class Sprite extends GameObject {
     protected StatusBar healthBar;
     protected int maxHealthPoints;
     protected int healthPoints;
+    protected int damagePoints;
 
     public Sprite(Context context, Bitmap bitmap, Bitmap[] rightWalkingAnimation, Bitmap[] leftWalkingAnimation, Bitmap[] downWalkingAnimation, Bitmap[] upWalkingAnimation, Room room, double positionX, double positionY, int maxHealthPoints, int healthColor) {
         super(bitmap, positionX, positionY);
@@ -38,6 +38,7 @@ public abstract class Sprite extends GameObject {
         this.leftWalkingAnimation = leftWalkingAnimation;
         this.downWalkingAnimation = downWalkingAnimation;
         this.upWalkingAnimation = upWalkingAnimation;
+        damagePoints = 1;
     }
 
     @Override
@@ -49,6 +50,9 @@ public abstract class Sprite extends GameObject {
                 (float) gameDisplay.gameToDisplayCoordinatesY(positionY),
                 paint
         );
+        healthBar.setPositionX((float) positionX);
+        healthBar.setPositionY((float) positionY);
+        healthBar.draw(canvas, gameDisplay, healthPoints, maxHealthPoints);
     }
 
     public void keepInBounds() {
@@ -85,5 +89,12 @@ public abstract class Sprite extends GameObject {
 
     public Direction getDirection() {
         return direction;
+    }
+
+    public int getDamagePoints() {
+        return damagePoints;
+    }
+    public void setDamagePoints(int damagePoints) {
+        this.damagePoints = damagePoints;
     }
 }

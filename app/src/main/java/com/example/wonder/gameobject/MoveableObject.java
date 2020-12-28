@@ -1,13 +1,10 @@
 package com.example.wonder.gameobject;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.example.wonder.Direction;
 import com.example.wonder.R;
-import com.example.wonder.Room;
 
 public class MoveableObject extends GameObject {
 

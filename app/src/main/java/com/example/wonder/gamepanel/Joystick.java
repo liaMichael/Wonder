@@ -1,9 +1,13 @@
 package com.example.wonder.gamepanel;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import androidx.core.content.ContextCompat;
+
+import com.example.wonder.R;
 import com.example.wonder.Utils;
 
 public class Joystick {
@@ -23,7 +27,7 @@ public class Joystick {
     private double actuatorX;
     private double actuatorY;
 
-    public Joystick(int centerPositionX, int centerPositionY, int outerCircleRadius, int innerCircleRadius) {
+    public Joystick(Context context, int centerPositionX, int centerPositionY, int outerCircleRadius, int innerCircleRadius) {
 
         // Outer and inner circle make up the joystick
         outerCircleCenterPositionX = centerPositionX;
@@ -37,11 +41,11 @@ public class Joystick {
 
         // Paint of circles
         outerCirclePaint = new Paint();
-        outerCirclePaint.setColor(Color.GRAY);
+        outerCirclePaint.setColor(ContextCompat.getColor(context, R.color.joystickOuterCircle));
         outerCirclePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         innerCirclePaint = new Paint();
-        innerCirclePaint.setColor(Color.WHITE);
+        innerCirclePaint.setColor(ContextCompat.getColor(context, R.color.joystickInnerCircle));
         innerCirclePaint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
@@ -115,5 +119,37 @@ public class Joystick {
 
     public double getActuatorY() {
         return actuatorY;
+    }
+
+    public int getOuterCircleCenterPositionX() {
+        return outerCircleCenterPositionX;
+    }
+
+    public void setOuterCircleCenterPositionX(int outerCircleCenterPositionX) {
+        this.outerCircleCenterPositionX = outerCircleCenterPositionX;
+    }
+
+    public int getOuterCircleCenterPositionY() {
+        return outerCircleCenterPositionY;
+    }
+
+    public void setOuterCircleCenterPositionY(int outerCircleCenterPositionY) {
+        this.outerCircleCenterPositionY = outerCircleCenterPositionY;
+    }
+
+    public int getInnerCircleCenterPositionX() {
+        return innerCircleCenterPositionX;
+    }
+
+    public void setInnerCircleCenterPositionX(int innerCircleCenterPositionX) {
+        this.innerCircleCenterPositionX = innerCircleCenterPositionX;
+    }
+
+    public int getInnerCircleCenterPositionY() {
+        return innerCircleCenterPositionY;
+    }
+
+    public void setInnerCircleCenterPositionY(int innerCircleCenterPositionY) {
+        this.innerCircleCenterPositionY = innerCircleCenterPositionY;
     }
 }

@@ -8,4 +8,8 @@
     <color name="statusBarPlayerHealth">#00FF00</color>
     <color name="statusBarEnemyHealth">#FF0000</color>
     <color name="gameOver">#F44336</color>
+    <color name="wonder">#4bf6d6</color>
+    <color name="wonderLike">#0f70b6</color>
+    <color name="joystickOuterCircle">#99808080</color>
+    <color name="joystickInnerCircle">#99FFFFFF</color>
 </resources>

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-import com.example.wonder.gameobject.Player;
+import com.example.wonder.gameobject.Room;
 import com.example.wonder.gamepanel.GameOver;
 import com.example.wonder.gamepanel.Joystick;
 
@@ -17,44 +17,14 @@ public class Level {
     private GameOver gameOver;
 
     private int joystickPointerId = 0;
+    private boolean movingTouch = false;
 
-    private int numberOfEnemies;
-    private int playerSpellDamagePoints;
-    private int enemySpellDamagePoints;
-    private int playerMaxHealthPoints;
-    private int enemyMaxHealthPoints;
-    private int enemySpellCastsPerMinute;
-
-    public Level(Context context, GameDisplay gameDisplay) {
-        this.gameDisplay = gameDisplay;
-        joystick = new Joystick(275, 700, 70, 40);
-        room = new Room(context, joystick);
-
-        gameOver = new GameOver(context);
-
-        // Changeable
-        numberOfEnemies = 3;
-        playerSpellDamagePoints = 1;
-        enemySpellDamagePoints = 1;
-        playerMaxHealthPoints = 10;
-        enemyMaxHealthPoints = 2;
-        enemySpellCastsPerMinute = 10;
-    }
-
-    public Level(Context context, GameDisplay gameDisplay, Player player, Joystick joystick, Room room) {
+    public Level(Context context, GameDisplay gameDisplay, Joystick joystick, Room room) {
         this.gameDisplay = gameDisplay;
         this.joystick = joystick;
         this.room = room;
 
         gameOver = new GameOver(context);
-
-        // Changeable
-        numberOfEnemies = 3;
-        playerSpellDamagePoints = 1;
-        enemySpellDamagePoints = 1;
-        playerMaxHealthPoints = 10;
-        enemyMaxHealthPoints = 2;
-        enemySpellCastsPerMinute = 10;
     }
 
     public boolean onTouchEvent(MotionEvent event) {
@@ -62,22 +32,30 @@ public class Level {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                if (joystick.getIsPressed()) {
-                    // Joystick was pressed before this event -> cast spell
-                    room.setNumberOfSpellsToCast(room.getNumberOfSpellsToCast() + 1);
-                } else if (joystick.isPressed((double) event.getX(), (double) event.getY())) {
-                    // Joystick is pressed in this event -> setIsPressed(true) and store ID
-                    joystickPointerId = event.getPointerId(event.getActionIndex());
+                if (!joystick.getIsPressed() && (double) event.getX() < gameDisplay.getDisplayCenterX()) {
+                    joystick.setInnerCircleCenterPositionX((int) event.getX());
+                    joystick.setInnerCircleCenterPositionY((int) event.getY());
+                    joystick.setOuterCircleCenterPositionX((int) event.getX());
+                    joystick.setOuterCircleCenterPositionY((int) event.getY());
                     joystick.setIsPressed(true);
                 } else {
-                    // Joystick was not pressed previously, and is not pressed in this event -> cast spell
                     room.setNumberOfSpellsToCast(room.getNumberOfSpellsToCast() + 1);
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
                 // Joystick was pressed previously and is now moved
-                if (joystick.getIsPressed()) {
-                    joystick.setActuator((double) event.getX(), (double) event.getY());
+                if ((double) event.getX() < gameDisplay.getDisplayCenterX()) {
+                    if (joystick.getIsPressed() || joystick.isPressed((double) event.getX(), (double) event.getY())) {
+                        joystick.setActuator((double) event.getX(), (double) event.getY());
+                    } else {
+                        joystick.setInnerCircleCenterPositionX((int) event.getX());
+                        joystick.setInnerCircleCenterPositionY((int) event.getY());
+                        joystick.setOuterCircleCenterPositionX((int) event.getX());
+                        joystick.setOuterCircleCenterPositionY((int) event.getY());
+                    }
+                    joystick.setIsPressed(true);
+                } else {
+                    joystick.setIsPressed(false);
                 }
                 return true;
             case MotionEvent.ACTION_UP:
@@ -97,7 +75,9 @@ public class Level {
         room.draw(canvas, gameDisplay);
 
         // Draw game panels
-        joystick.draw(canvas);
+        if (joystick.getIsPressed()) {
+            joystick.draw(canvas);
+        }
 
         // Draw Game over if the player is dead
         if (room.getPlayer().getHealthPoints() <= 0) {
@@ -107,7 +87,8 @@ public class Level {
 
     public void update() {
         // Stop updating the game if the player is dead
-        if (room.getPlayer().getHealthPoints() <= 0) {
+        if (room.getPlayer().getHealthPoints() <= 0 ||
+                room.isFinish()) {
             return;
         }
 
@@ -117,4 +98,31 @@ public class Level {
 
         gameDisplay.update();
     }
+
+    // ---------------
+    // Changeable
+    // ---------------
+    /**public void setNumberOfEnemies(int numberOfEnemies) {
+        room.setNumberOfEnemies(numberOfEnemies);
+    }
+
+    public void setPlayerSpellDamagePoints(int playerSpellDamagePoints) {
+        room.setPlayerSpellDamagePoints(playerSpellDamagePoints);
+    }
+
+    public void setEnemySpellDamagePoints(int enemySpellDamagePoints) {
+        room.setEnemySpellDamagePoints(enemySpellDamagePoints);
+    }
+
+    public void setPlayerMaxHealthPoints(int playerMaxHealthPoints) {
+        room.setPlayerMaxHealthPoints(playerMaxHealthPoints);
+    }
+
+    public void setEnemyMaxHealthPoints(int enemyMaxHealthPoints) {
+        room.setEnemyMaxHealthPoints(enemyMaxHealthPoints);
+    }
+
+    public void setEnemySpeedPixelsPerSecond(double enemySpeedPixelsPerSecond) {
+        room.setEnemySpeedPixelsPerSecond(enemySpeedPixelsPerSecond);
+    }***/
 }
