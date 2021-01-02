@@ -1,12 +1,20 @@
 package com.example.wonder;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import android.animation.Animator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 /**
  * PlayActivity is the entry point to the game

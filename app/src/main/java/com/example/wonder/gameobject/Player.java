@@ -49,8 +49,7 @@ public class Player extends Sprite {
                 ContextCompat.getColor(context, R.color.statusBarPlayerHealth)
         );
 
-        wonderBar = new StatusBar(context, this, R.color.wonderLike);
-
+        wonderBar = new StatusBar(context, this, 30 + healthBar.getHeight(), ContextCompat.getColor(context, R.color.wonderLike));
 
         this.joystick = joystick;
         this.context = context;
@@ -84,14 +83,7 @@ public class Player extends Sprite {
         }
     }
 
-    @Override
-    public void draw(Canvas canvas, GameDisplay gameDisplay) {
-        super.draw(canvas, gameDisplay);
-        wonderBar.setPositionX((float) positionX);
-        wonderBar.setPositionY(healthBar.getPositionY() - wonderBar.getHeight() - 2);
-        if (wonderPoints < 0) {
-            wonderPoints = 0;
-        }
+    public void drawWonderBar(Canvas canvas, GameDisplay gameDisplay) {
         wonderBar.draw(canvas, gameDisplay, wonderPoints, maxWonderPoints);
     }
 
@@ -207,26 +199,28 @@ public class Player extends Sprite {
             }
 
             // Keep cube in bounds
-            if (mudCube != null) {
-                if (mudCube.positionY < room.positionY + room.TILE_SIZE) {
-                    if (pushingCube && mudCube.getDirection() == Direction.UP) {
-                        pushingCube = false;
-                    }
-                }
-                if (mudCube.positionX < room.positionX) {
-                    if (pushingCube && mudCube.getDirection() == Direction.LEFT) {
-                        pushingCube = false;
-                    }
-                }
-                if (mudCube.positionY + mudCube.height > room.positionY + room.height) {
-                    if (pushingCube && mudCube.getDirection() == Direction.DOWN) {
-                        pushingCube = false;
-                    }
-                }
-                if (mudCube.positionX + mudCube.width > room.positionX + room.width) {
-                    if (pushingCube && mudCube.getDirection() == Direction.RIGHT) {
-                        pushingCube = false;
-                    }
+            if (mudCube != null && pushingCube) {
+                switch (mudCube.getDirection()) {
+                    case RIGHT:
+                        if (mudCube.positionX + mudCube.width > room.positionX + room.width) {
+                            pushingCube = false;
+                        }
+                        break;
+                    case LEFT:
+                        if (mudCube.positionX < room.positionX) {
+                            pushingCube = false;
+                        }
+                        break;
+                    case DOWN:
+                        if (mudCube.positionY + mudCube.height > room.positionY + room.height) {
+                            pushingCube = false;
+                        }
+                        break;
+                    case UP:
+                        if (mudCube.positionY < room.positionY + room.TILE_SIZE) {
+                            pushingCube = false;
+                        }
+                        break;
                 }
             }
 

@@ -13,21 +13,21 @@ import androidx.core.content.res.ResourcesCompat;
 import com.example.wonder.R;
 
 /**
- * GameOver is a panel which draws the text Game Over to the screen.
+ * VictoryScreen is a panel which draws the text The End to the screen.
  */
-public class GameOver {
+public class VictoryScreen {
 
     private Context context;
 
-    public GameOver(Context context) {
+    public VictoryScreen(Context context) {
         this.context = context;
     }
 
     public void draw(Canvas canvas, DisplayMetrics displayMetrics) {
-        String text = "Game Over";
+        String text = "The End";
 
         Paint paint = new Paint();
-        int color = ContextCompat.getColor(context, R.color.gameOver);
+        int color = ContextCompat.getColor(context, R.color.victory);
         paint.setColor(color);
         paint.setTextSize(150);
         Typeface plain = ResourcesCompat.getFont(context, R.font.fipps_regular);

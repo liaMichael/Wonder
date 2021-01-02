@@ -19,9 +19,11 @@ public class StatusBar {
     protected Paint borderPaint, barPaint;
     private Sprite sprite;
     private float positionX, positionY;
+    private float distanceToSprite;
 
-    public StatusBar(Context context, Sprite sprite, int color) {
+    public StatusBar(Context context, Sprite sprite, int distanceToSprite, int color) {
         this.sprite = sprite;
+        this.distanceToSprite = distanceToSprite;
         this.width = 100;
         this.height = 20;
         this.margin = 2;
@@ -38,17 +40,17 @@ public class StatusBar {
     }
 
     public void draw(Canvas canvas, GameDisplay gameDisplay, int barPoints, int maxBarPoints) {
-        float distanceToSprite = 30;
         if (barPoints < 0) {
             barPoints = 0;
         }
         float barPointPercentage = (float) barPoints / maxBarPoints;
 
         // Draw border
-        float borderLeft = positionX + sprite.getWidth() / 2 - width / 2;
-        float borderRight = positionX + sprite.getWidth() / 2 + width / 2;
-        float borderBottom = positionY - distanceToSprite;
-        float borderTop = borderBottom - height;
+        float borderLeft = (float) (sprite.getPositionX() + sprite.getWidth() / 2 - width / 2);
+        float borderRight = borderLeft + width;
+        float borderTop = (float) (sprite.getPositionY() - distanceToSprite - height);
+        float borderBottom = borderTop + height;
+
         canvas.drawRect(
                 (float) gameDisplay.gameToDisplayCoordinatesX(borderLeft),
                 (float) gameDisplay.gameToDisplayCoordinatesY(borderTop),
@@ -58,8 +60,8 @@ public class StatusBar {
         );
 
         // Draw health
-        float barWidth = width - 2 * margin;
-        float barHeight = height - 2 * margin;
+        float barWidth = width - margin * 2;
+        float barHeight = height - margin * 2;
         float barLeft = borderLeft + margin;
         float barRight = barLeft + barWidth * barPointPercentage;
         float barBottom = borderBottom - margin;

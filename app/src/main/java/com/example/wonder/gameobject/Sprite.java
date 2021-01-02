@@ -19,7 +19,7 @@ public abstract class Sprite extends GameObject {
     protected Bitmap[] leftWalkingAnimation;
     protected Bitmap[] downWalkingAnimation;
     protected Bitmap[] upWalkingAnimation;
-    protected Direction direction = Direction.DOWN;
+    protected Direction direction = Direction.UP;
     protected Room room;
     protected StatusBar healthBar;
     protected int maxHealthPoints;
@@ -32,7 +32,7 @@ public abstract class Sprite extends GameObject {
         this.width = bitmap.getWidth();
         this.height = bitmap.getHeight();
         this.maxHealthPoints = maxHealthPoints;
-        this.healthBar = new StatusBar(context,this, healthColor);
+        this.healthBar = new StatusBar(context,this, 30, healthColor);
         healthPoints = maxHealthPoints;
         this.rightWalkingAnimation = rightWalkingAnimation;
         this.leftWalkingAnimation = leftWalkingAnimation;
@@ -50,9 +50,6 @@ public abstract class Sprite extends GameObject {
                 (float) gameDisplay.gameToDisplayCoordinatesY(positionY),
                 paint
         );
-        healthBar.setPositionX((float) positionX);
-        healthBar.setPositionY((float) positionY);
-        healthBar.draw(canvas, gameDisplay, healthPoints, maxHealthPoints);
     }
 
     public void keepInBounds() {
@@ -73,18 +70,11 @@ public abstract class Sprite extends GameObject {
     public int getHealthPoints() {
         return healthPoints;
     }
+
     public void setHealthPoints(int healthPoints) {
         // Only allow positive values
         if (healthPoints >= 0)
             this.healthPoints = healthPoints;
-    }
-
-    public int getMaxHealthPoints() {
-        return maxHealthPoints;
-    }
-
-    public StatusBar getHealthBar() {
-        return healthBar;
     }
 
     public Direction getDirection() {

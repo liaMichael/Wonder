@@ -145,4 +145,8 @@ public abstract class GameObject {
     public void setVelocityY(double velocityY) {
         this.velocityY = velocityY;
     }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
 }

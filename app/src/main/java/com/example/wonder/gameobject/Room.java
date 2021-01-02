@@ -59,7 +59,9 @@ public class Room extends GameObject {
         border = BitmapFactory.decodeResource(context.getResources(), R.drawable.room_border);
 
         // Initialize game objects
-        player = new Player(context, joystick, this, positionX + width / 2.0, positionY + height / 2.0);
+        player = new Player(context, joystick, this, positionX, positionY);
+        player.positionX = positionX + width / 2.0 - player.width / 2.0;
+        player.positionY = positionY + height - player.height;
         player.damagePoints = playerSpellDamagePoints;
         player.maxHealthPoints = playerMaxHealthPoints;
         mudCube = new MoveableObject(context, positionX + TILE_SIZE * 3, positionY + TILE_SIZE * 3, this);
@@ -108,18 +110,21 @@ public class Room extends GameObject {
             enemySpell.draw(canvas, gameDisplay);
         }
 
-        player.getHealthBar().draw(canvas, gameDisplay, player.getHealthPoints(), player.getMaxHealthPoints());
+        player.healthBar.draw(canvas, gameDisplay, player.healthPoints, player.maxHealthPoints);
+        player.wonderBar.draw(canvas, gameDisplay, player.wonderPoints, player.maxWonderPoints);
 
         for (Enemy enemy : enemyList) {
-            enemy.getHealthBar().draw(canvas, gameDisplay, enemy.getHealthPoints(), enemy.getMaxHealthPoints());
+            enemy.healthBar.draw(canvas, gameDisplay, enemy.healthPoints, enemy.maxHealthPoints);
         }
     }
 
     public void update() {
         player.update();
 
-        if (door.isOpen() && isColliding(player, door) && player.positionY <= this.positionY) {
+        if (door.isOpen() && isColliding(player, door) && player.positionY <= positionY) {
             finish = true;
+        } else {
+            finish = false;
         }
 
         if (isColliding(player, mudCube) && enemiesAlive == 0) {
@@ -195,20 +200,21 @@ public class Room extends GameObject {
                 Spell spell = spellIterator.next();
 
                 if (isColliding(enemy, spell)) {
-                    enemy.setHealthPoints(enemy.getHealthPoints() - spell.getDamagePoints());
-                    if (enemy.getHealthPoints() == 0) {
+                    Log.d("Room.java", "Enemy collision. X: " + enemy.positionX + ", Y: " + enemy.positionY + " enemy HP:" + enemy.healthPoints + ". Spells: " + spellList.size() + ", numberOfSpellsToCast: " + numberOfSpellsToCast);
+                    enemy.setHealthPoints(enemy.healthPoints - spell.getDamagePoints());
+                    if (enemy.healthPoints == 0) {
                         if (enemiesAlive == 1) {
                             mudCube.positionX = enemy.positionX;
                             mudCube.positionY = enemy.positionY;
-                            if (mudCube.positionX - positionX <= player.width) {
-                                mudCube.positionX = positionX + player.width + 5;
-                            } else if (positionX + width - mudCube.positionX + mudCube.width <= player.width) {
-                                mudCube.positionX = positionX + width - player.width - 5;
+                            if (mudCube.positionX - positionX <= player.width + sizeMultiplier * 2) {
+                                mudCube.positionX = positionX + player.width + sizeMultiplier * 2;
+                            } else if (positionX + width - mudCube.positionX + mudCube.width <= player.width + sizeMultiplier * 2) {
+                                mudCube.positionX = positionX + width - player.width - sizeMultiplier * 2;
                             }
-                            if (mudCube.positionY - positionY <= player.height) {
-                                mudCube.positionY = positionY + player.height + 5;
-                            } else if (positionY + height - mudCube.positionY + mudCube.height <= player.height) {
-                                mudCube.positionY = positionY + height - player.height - 5;
+                            if (mudCube.positionY - positionY <= player.height + sizeMultiplier * 2) {
+                                mudCube.positionY = positionY + player.height + sizeMultiplier * 2;
+                            } else if (positionY + height - mudCube.positionY + mudCube.height <= player.height + sizeMultiplier * 2) {
+                                mudCube.positionY = positionY + height - player.height - sizeMultiplier * 2;
                             }
                         }
                         enemiesAlive--;
@@ -216,6 +222,7 @@ public class Room extends GameObject {
                         spellIterator.remove();
                         break;
                     }
+                    spellIterator.remove();
                 }
             }
 
@@ -224,10 +231,10 @@ public class Room extends GameObject {
             while (enemySpellIterator.hasNext()) {
                 Spell enemySpell = enemySpellIterator.next();
 
-                if (enemySpell.getPositionY() < this.positionY ||
-                        enemySpell.getPositionX() < this.positionX ||
-                        enemySpell.getPositionY() + enemySpell.getHeight() > this.positionY + this.height ||
-                        enemySpell.getPositionX() + enemySpell.getWidth() > this.positionX + this.width) {
+                if (enemySpell.positionY < positionY ||
+                        enemySpell.positionX < positionX ||
+                        enemySpell.positionY + enemySpell.height > positionY + height ||
+                        enemySpell.positionX+ enemySpell.width > positionX + width) {
                     enemySpellIterator.remove();
                     continue;
                 }
@@ -242,24 +249,24 @@ public class Room extends GameObject {
             // If player and enemy are colliding
             if (isColliding(enemy, player)) {
                 // Remove enemy if it collides with the player
-                Log.d("Room.java", "Enemy collision. X: " + enemy.getPositionX() + ", Y: " + enemy.getPositionY());
+                Log.d("Room.java", "Enemy collision. X: " + enemy.positionX + ", Y: " + enemy.positionY);
                 if (enemiesAlive == 1) {
                     mudCube.positionX = enemy.positionX;
                     mudCube.positionY = enemy.positionY;
-                    if (mudCube.positionX - positionX <= player.width) {
-                        mudCube.positionX = positionX + player.width + 5;
-                    } else if (positionX + width - mudCube.positionX + mudCube.width <= player.width) {
-                        mudCube.positionX = positionX + width - player.width - 5;
+                    if (mudCube.positionX - positionX <= player.width + sizeMultiplier * 2) {
+                        mudCube.positionX = positionX + player.width + sizeMultiplier * 2;
+                    } else if (positionX + width - mudCube.positionX + mudCube.width <= player.width + sizeMultiplier * 2) {
+                        mudCube.positionX = positionX + width - player.width - sizeMultiplier * 2;
                     }
-                    if (mudCube.positionY - positionY <= player.height) {
-                        mudCube.positionY = positionY + player.height + 5;
-                    } else if (positionY + height - mudCube.positionY + mudCube.height <= player.height) {
-                        mudCube.positionY = positionY + height - player.height - 5;
+                    if (mudCube.positionY - positionY <= player.height + sizeMultiplier * 2) {
+                        mudCube.positionY = positionY + player.height + sizeMultiplier * 2;
+                    } else if (positionY + height - mudCube.positionY + mudCube.height <= player.height + sizeMultiplier * 2) {
+                        mudCube.positionY = positionY + height - player.height - sizeMultiplier * 2;
                     }
                 }
                 enemiesAlive--;
                 enemyIterator.remove();
-                player.setHealthPoints(player.getHealthPoints() - 1);
+                player.healthPoints--;
                 continue;
             }
 
@@ -277,6 +284,7 @@ public class Room extends GameObject {
             Spell enemySpell = enemySpellIterator.next();
 
             // If spell and enemySpell are colliding
+            boolean removed = false;
             spellIterator = spellList.iterator();
             while (spellIterator.hasNext()) {
                 Spell spell = spellIterator.next();
@@ -284,14 +292,19 @@ public class Room extends GameObject {
                 if (isColliding(enemySpell, spell)) {
                     spellIterator.remove();
                     enemySpellIterator.remove();
+                    removed = true;
                     break;
                 }
+            }
+
+            if (removed) {
+                continue;
             }
 
             // If player and enemySpell are colliding
             if (isColliding(enemySpell, player)) {
                 enemySpellIterator.remove();
-                player.setHealthPoints(player.getHealthPoints() - 1);
+                player.healthPoints--;
                 continue;
             }
         }
@@ -301,10 +314,10 @@ public class Room extends GameObject {
         while (enemySpellIterator.hasNext()) {
             Spell enemySpell = enemySpellIterator.next();
 
-            if (enemySpell.getPositionY() < this.positionY ||
-                    enemySpell.getPositionX() < this.positionX ||
-                    enemySpell.getPositionY() + enemySpell.getHeight() > this.positionY + this.height ||
-                    enemySpell.getPositionX() + enemySpell.getWidth() > this.positionX + this.width) {
+            if (enemySpell.positionY < positionY ||
+                    enemySpell.positionX < positionX ||
+                    enemySpell.positionY + enemySpell.height > positionY + height ||
+                    enemySpell.positionX + enemySpell.width > positionX + width) {
                 enemySpellIterator.remove();
                 continue;
             }
@@ -325,10 +338,10 @@ public class Room extends GameObject {
         while (spellIterator.hasNext()) {
             Spell spell = spellIterator.next();
 
-            if (spell.getPositionY() < this.positionY ||
-                    spell.getPositionX() < this.positionX ||
-                    spell.getPositionY() + spell.getHeight() > this.positionY + this.height ||
-                    spell.getPositionX() + spell.getWidth() > this.positionX + this.width) {
+            if (spell.positionY < positionY ||
+                    spell.positionX < positionX ||
+                    spell.positionY + spell.height > positionY + height ||
+                    spell.positionX + spell.width > positionX + width) {
                 spellIterator.remove();
                 continue;
             }
@@ -359,6 +372,13 @@ public class Room extends GameObject {
 
     public boolean isFinish() {
         return finish;
+    }
+    public void setFinish(boolean finish) {
+        this.finish = finish;
+    }
+
+    public Door getDoor() {
+        return door;
     }
 
     // ---------------
